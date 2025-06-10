@@ -3,18 +3,15 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
-import DrawerRoutes from "./src/routes/DrawerRoutes"; // Este arquivo é o que define as rotas com os novos nomes
-import TabRoutes from "./src/routes/TabRoutes"; // Se estiver usando abas, também precisará ser atualizado
+
+import TabRoutes from "./src/routes/TabRoutes";
 import Toast from "react-native-toast-message";
 
 export default function App() {
   return (
     <PaperProvider>
       <NavigationContainer>
-        {/* As rotas de navegação dentro de DrawerRoutes (e TabRoutes, se usado)
-            são onde as alterações de "fornecedores" para "funcionarios" e
-            "produtos" para "treinadores" realmente se manifestam. */}
-        <DrawerRoutes />
+        <TabRoutes />
       </NavigationContainer>
       <Toast />
     </PaperProvider>
@@ -24,7 +21,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
   },

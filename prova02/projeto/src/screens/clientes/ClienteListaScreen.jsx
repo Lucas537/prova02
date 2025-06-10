@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, View, Modal, TouchableOpacity } from "react-native";
+import {
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  View,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import ClienteService from "../../../services/ClienteService"; 
-import Toast from 'react-native-toast-message';
+import ClienteService from "../../../services/ClienteService";
+import Toast from "react-native-toast-message";
 
 export default function ClienteListaScreen({ navigation, route }) {
   const [cliente, setCliente] = useState([]);
@@ -12,11 +19,11 @@ export default function ClienteListaScreen({ navigation, route }) {
 
   useEffect(() => {
     buscarCliente();
-    const unsubscribe = navigation.addListener('focus', () => {
+    const unsubscribe = navigation.addListener("focus", () => {
       buscarCliente();
     });
-    return unsubscribe; 
-  }, [navigation]); 
+    return unsubscribe;
+  }, [navigation]);
 
   async function buscarCliente() {
     const listaClientes = await ClienteService.listar();
@@ -29,7 +36,7 @@ export default function ClienteListaScreen({ navigation, route }) {
   }
 
   async function confirmarDelete() {
-    if (clienteDoDelete) { 
+    if (clienteDoDelete) {
       try {
         await ClienteService.remover(clienteDoDelete.id);
         Toast.show({
@@ -58,16 +65,7 @@ export default function ClienteListaScreen({ navigation, route }) {
   }
 
   return (
-    <ScrollView style={styles.tela}>
-      <Button
-        style={{ margin: 10 }}
-        icon="plus"
-        mode="contained"
-        onPress={() => navigation.navigate("ClienteFormScreen")}
-      >
-        Cadastrar
-      </Button>
-
+    <View style={styles.tela}>
       <FlatList
         data={cliente}
         renderItem={({ item }) => (
@@ -87,13 +85,17 @@ export default function ClienteListaScreen({ navigation, route }) {
               >
                 {" "}
               </Button>
-              <Button icon="delete" onPress={() => handleDelete(item)}>
-                {" "}
-              </Button>
+              <Button
+                style={{ backgroundColor: "red" }}
+                icon="delete"
+                onPress={() => handleDelete(item)}
+              />
             </Card.Actions>
           </Card>
         )}
-        keyExtractor={item => item.id ? item.id.toString() : Math.random().toString()}
+        keyExtractor={(item) =>
+          item.id ? item.id.toString() : Math.random().toString()
+        }
       />
 
       <Modal
@@ -140,18 +142,21 @@ export default function ClienteListaScreen({ navigation, route }) {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   tela: {
     height: "100%",
-    backgroundColor: "rgba(200, 162, 121, 0.5)",
+    backgroundColor: "#222222",
+  },
+  novo: {
+    margin: 10,
   },
   id: {
     textAlign: "center",
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 5,
     fontSize: 16,
   },

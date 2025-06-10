@@ -4,45 +4,55 @@ import { TextInputMask } from "react-native-masked-text";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import * as Yup from "yup";
-import ClienteService from "../../../services/ClienteService";
+import TreinadorService from "../../../services/TreinadorService";
 import apiLocalidades from "../../../services/api/apiLocalidades";
 import Toast from "react-native-toast-message";
 
-export default function ClienteFormScreen({ navigation, route }) {
-  const clienteAntigo = route.params || {};
+export default function TreinadorFormScreen({ navigation, route }) {
+  const treinadorAntigo = route.params || {};
 
-  const [nome, setNome] = useState(clienteAntigo.nome || "");
-  const [telefone, setTelefone] = useState(clienteAntigo.telefone || "");
-  const [email, setEmail] = useState(clienteAntigo.email || "");
-  const [cpf, setCpf] = useState(clienteAntigo.cpf || "");
-  const [estado, setEstado] = useState(clienteAntigo.estado || "");
+  const [nome, setNome] = useState(treinadorAntigo.nome || "");
+  const [cpf, setCpf] = useState(treinadorAntigo.cpf || "");
+  const [dataDeNascimento, setDataDeNascimento] = useState(
+    treinadorAntigo.dataDeNascimento || ""
+  );
+  const [estadoCivil, setEstadoCivil] = useState(
+    treinadorAntigo.estadoCivil || ""
+  );
+
+  const [estadoDeNascimento, setEstadoDeNascimento] = useState(
+    treinadorAntigo.estadoDeNascimento || ""
+  );
   const [estados, setEstados] = useState([]);
   const [errors, setErrors] = useState({});
 
   const [touched, setTouched] = useState({
     nome: false,
-    telefone: false,
-    email: false,
     cpf: false,
-    estado: false,
+    dataDeNascimento: false,
+    estadoCivil: false,
+    estadoDeNascimento: false,
   });
 
   const validationSchema = Yup.object().shape({
     nome: Yup.string()
       .min(3, "Nome deve ter pelo menos 3 caracteres")
       .required("Nome é obrigatório"),
-    telefone: Yup.string()
-      .matches(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Telefone inválido")
-      .required("Telefone é obrigatório"),
-    email: Yup.string()
-      .email("E-mail inválido")
-      .required("E-mail é obrigatório"),
     cpf: Yup.string()
       .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF inválido")
       .required("CPF é obrigatório"),
-    estado: Yup.string()
+    dataDeNascimento: Yup.string()
+      .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Data inválida (DD/MM/YYYY)")
+      .required("Data de Nascimento é obrigatória"),
+    estadoCivil: Yup.string()
+      .oneOf(
+        ["solteiro", "casado", "viuvo", "divorciado"],
+        "Selecione um estado civil válido"
+      )
+      .required("Estado Civil é obrigatório"),
+    estadoDeNascimento: Yup.string()
       .length(2, "Selecione um estado válido")
-      .required("Estado é obrigatório"),
+      .required("Estado de Nascimento é obrigatório"),
   });
 
   useEffect(() => {
@@ -70,40 +80,46 @@ export default function ClienteFormScreen({ navigation, route }) {
     try {
       setTouched({
         nome: true,
-        telefone: true,
-        email: true,
         cpf: true,
-        estado: true,
+        dataDeNascimento: true,
+        estadoCivil: true,
+        estadoDeNascimento: true,
       });
 
       await validationSchema.validate(
-        { nome, telefone, email, cpf, estado },
+        { nome, cpf, dataDeNascimento, estadoCivil, estadoDeNascimento },
         { abortEarly: false }
       );
       setErrors({});
 
-      const cliente = { nome, telefone, email, cpf, estado };
+      const treinador = {
+        nome,
+        cpf,
+        dataDeNascimento,
+        estadoCivil,
+        estadoDeNascimento,
+      };
 
-      if (clienteAntigo.id) {
-        cliente.id = clienteAntigo.id;
-        await ClienteService.atualizar(cliente);
+      if (treinadorAntigo.id) {
+        treinador.id = treinadorAntigo.id;
+        await TreinadorService.atualizar(treinador);
       } else {
-        await ClienteService.salvar(cliente);
+        await TreinadorService.salvar(treinador);
       }
 
       navigation.reset({
         index: 0,
-        routes: [{ name: "ClienteListaScreen" }],
+        routes: [{ name: "TreinadorListaScreen" }],
       });
 
       Toast.show({
         type: "success",
         text1: "Sucesso!",
-        text2: "Cliente salvo com sucesso!",
+        text2: "Treinador salvo com sucesso!",
       });
     } catch (error) {
       const newErro = {};
-      error.inner.forEach((erro) => {
+      error.inner?.forEach((erro) => {
         newErro[erro.path] = erro.message;
       });
       setErrors(newErro);
@@ -118,8 +134,11 @@ export default function ClienteFormScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Text style={{ marginTop: 15, fontWeight: "800", color: "white" }} variant="titleLarge">
-        ID: {clienteAntigo.id || "NOVO"}
+      <Text
+        style={{ marginTop: 15, fontWeight: "800", color: "white" }}
+        variant="titleLarge"
+      >
+        ID: {treinadorAntigo.id || "NOVO"}
       </Text>
       <TextInput
         style={styles.input}
@@ -133,45 +152,6 @@ export default function ClienteFormScreen({ navigation, route }) {
       />
       <HelperText type="error" visible={!!errors.nome && touched.nome}>
         {errors.nome}
-      </HelperText>
-      <TextInput
-        style={styles.input}
-        mode="outlined"
-        label="Telefone"
-        placeholder="Informe o Telefone"
-        value={telefone}
-        onChangeText={setTelefone}
-        keyboardType="numeric"
-        render={(props) => (
-          <TextInputMask
-            {...props}
-            type={"cel-phone"}
-            options={{
-              maskType: "BRL",
-              withDDD: true,
-              dddMask: "(99) ",
-            }}
-          />
-        )}
-        onBlur={() => handleBlur("telefone", telefone)}
-        error={!!errors.telefone && touched.telefone}
-      />
-      <HelperText type="error" visible={!!errors.telefone && touched.telefone}>
-        {errors.telefone}
-      </HelperText>
-      <TextInput
-        style={styles.input}
-        mode="outlined"
-        label="E-mail"
-        placeholder="Informe o E-mail"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        onBlur={() => handleBlur("email", email)}
-        error={!!errors.email && touched.email}
-      />
-      <HelperText type="error" visible={!!errors.email && touched.email}>
-        {errors.email}
       </HelperText>
       <TextInput
         style={styles.input}
@@ -195,14 +175,67 @@ export default function ClienteFormScreen({ navigation, route }) {
       <HelperText type="error" visible={!!errors.cpf && touched.cpf}>
         {errors.cpf}
       </HelperText>
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        label="Data de Nascimento"
+        placeholder="DD/MM/YYYY"
+        value={dataDeNascimento}
+        onChangeText={setDataDeNascimento}
+        keyboardType="numeric"
+        render={(props) => (
+          <TextInputMask
+            {...props}
+            type={"datetime"}
+            options={{
+              format: "DD/MM/YYYY",
+            }}
+            value={dataDeNascimento}
+            onChangeText={setDataDeNascimento}
+          />
+        )}
+        onBlur={() => handleBlur("dataDeNascimento", dataDeNascimento)}
+        error={!!errors.dataDeNascimento && touched.dataDeNascimento}
+      />
+      <HelperText
+        type="error"
+        visible={!!errors.dataDeNascimento && touched.dataDeNascimento}
+      >
+        {errors.dataDeNascimento}
+      </HelperText>
+
       <View style={styles.pickerContainer}>
         <Picker
-          selectedValue={estado}
+          selectedValue={estadoCivil}
           onValueChange={(itemValue) => {
-            setEstado(itemValue);
-            validarCampo("estado", itemValue);
+            setEstadoCivil(itemValue);
+            validarCampo("estadoCivil", itemValue);
           }}
-          onBlur={() => handleBlur("estado", estado)}
+          onBlur={() => handleBlur("estadoCivil", estadoCivil)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Selecione o Estado Civil" value="" />
+          <Picker.Item label="Solteiro" value="solteiro" />
+          <Picker.Item label="Casado" value="casado" />
+          <Picker.Item label="Viúvo" value="viuvo" />
+          <Picker.Item label="Divorciado" value="divorciado" />
+        </Picker>
+      </View>
+      <HelperText
+        type="error"
+        visible={!!errors.estadoCivil && touched.estadoCivil}
+      >
+        {errors.estadoCivil}
+      </HelperText>
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={estadoDeNascimento}
+          onValueChange={(itemValue) => {
+            setEstadoDeNascimento(itemValue);
+            validarCampo("estadoDeNascimento", itemValue);
+          }}
+          onBlur={() => handleBlur("estadoDeNascimento", estadoDeNascimento)}
           style={styles.picker}
         >
           <Picker.Item label="Selecione o Estado" value="" />
@@ -215,8 +248,11 @@ export default function ClienteFormScreen({ navigation, route }) {
           ))}
         </Picker>
       </View>
-      <HelperText type="error" visible={!!errors.estado && touched.estado}>
-        {errors.estado}
+      <HelperText
+        type="error"
+        visible={!!errors.estadoDeNascimento && touched.estadoDeNascimento}
+      >
+        {errors.estadoDeNascimento}
       </HelperText>
       <Button style={styles.input} mode="contained" onPress={salvar}>
         Salvar
@@ -228,9 +264,9 @@ export default function ClienteFormScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#222222",
     paddingHorizontal: "5%",
     alignItems: "center",
-    backgroundColor: "#222222"
   },
   input: {
     width: "100%",

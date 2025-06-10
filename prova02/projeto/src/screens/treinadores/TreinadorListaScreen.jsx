@@ -9,99 +9,87 @@ import {
 } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import TreinadorService from "../../../services/TreinadoresService"; // Changed service import
+import TreinadorService from "../../../services/TreinadorService";
 import Toast from "react-native-toast-message";
 
 export default function TreinadorListaScreen({ navigation, route }) {
-  const [treinador, setTreinador] = useState([]); // Changed state variable name
+  const [treinador, setTreinador] = useState([]);
   const [modal, setModal] = useState(false);
-  const [treinadorDoDelete, setTreinadorDoDelete] = useState(null); // Changed state variable name
+  const [treinadorDoDelete, setTreinadorDoDelete] = useState(null);
 
   useEffect(() => {
-    buscarTreinador(); // Changed function call
+    buscarTreinador();
     const unsubscribe = navigation.addListener("focus", () => {
-      buscarTreinador(); // Changed function call
+      buscarTreinador();
     });
     return unsubscribe;
   }, [navigation]);
 
-  // Removed the console.log for navigation as it's not directly related to the component's functionality
-  // useEffect(() => {
-  //   console.log(navigation);
-  // }, [navigation]);
-
-  async function buscarTreinador() { // Changed function name
-    const listaTreinadores = await TreinadorService.listar(); // Changed service call
-    setTreinador(listaTreinadores); // Changed state update
+  async function buscarTreinador() {
+    const listaTreinadores = await TreinadorService.listar();
+    setTreinador(listaTreinadores);
   }
 
   function handleDelete(item) {
-    setTreinadorDoDelete(item); // Changed state update
+    setTreinadorDoDelete(item);
     setModal(true);
   }
 
   async function confirmarDelete() {
-    if (treinadorDoDelete) { // Changed state variable
+    if (treinadorDoDelete) {
       try {
-        await TreinadorService.remover(treinadorDoDelete.id); // Changed service call
+        await TreinadorService.remover(treinadorDoDelete.id);
         Toast.show({
           type: "success",
           text1: "Sucesso!",
-          text2: `Treinador ${treinadorDoDelete.nome} excluído`, // Changed toast message
+          text2: `Treinador ${treinadorDoDelete.nome} excluído`,
         });
       } catch (error) {
-        console.warn("Erro ao remover treinador:", error); // Changed console message
+        console.warn("Erro ao remover treinador:", error);
         Toast.show({
           type: "error",
           text1: "Erro ao Excluir",
-          text2: "Não foi possível excluir o treinador.", // Changed toast message
+          text2: "Não foi possível excluir o treinador.",
         });
       } finally {
-        buscarTreinador(); // Changed function call
+        buscarTreinador();
         setModal(false);
-        setTreinadorDoDelete(null); // Changed state update
+        setTreinadorDoDelete(null);
       }
     }
   }
 
   function cancelarDelete() {
     setModal(false);
-    setTreinadorDoDelete(null); // Changed state update
+    setTreinadorDoDelete(null);
   }
 
   return (
-    <ScrollView style={styles.tela}>
-      <Button
-        style={{ margin: 10 }}
-        icon="plus"
-        mode="contained"
-        onPress={() => navigation.navigate("TreinadorFormScreen")} // Changed navigation target
-      >
-        Cadastrar
-      </Button>
-
+    <View style={styles.tela}>
       <FlatList
-        data={treinador} // Changed data source
+        data={treinador}
         renderItem={({ item }) => (
           <Card style={{ marginVertical: 5, marginHorizontal: 10 }}>
             <Card.Content>
               <Text style={styles.id}>ID: {item["id"]}</Text>
               <Text>Nome: {item["nome"]}</Text>
-              <Text>Especialidade: {item["especialidade"]}</Text> {/* Changed to especialidade */}
-              <Text>Valor por Hora: {item["valorHora"]}</Text> {/* Changed to valorHora */}
-              <Text>Data de Cadastro: {item["dataDeCadastro"]}</Text>
-              <Text>Experiência: {item["experiencia"]} anos</Text> {/* Changed to experiencia */}
+              <Text>CPF: {item["cpf"]}</Text>
+              <Text>Data Nasc.: {item["dataDeNascimento"]}</Text>
+              <Text>Estado Civil: {item["estadoCivil"]}</Text>
+              <Text>Estado Nasc.: {item["estadoDeNascimento"]}</Text>
             </Card.Content>
             <Card.Actions>
               <Button
                 icon="pencil"
-                onPress={() => navigation.navigate("TreinadorFormScreen", item)} // Changed navigation target
+                onPress={() => navigation.navigate("TreinadorFormScreen", item)}
               >
                 {" "}
               </Button>
-              <Button icon="delete" onPress={() => handleDelete(item)}>
-                {" "}
-              </Button>
+              <Button
+                style={{ backgroundColor: "red" }}
+                icon="delete"
+                onPress={() => handleDelete(item)}
+              />
             </Card.Actions>
           </Card>
         )}
@@ -128,7 +116,7 @@ export default function TreinadorListaScreen({ navigation, route }) {
             <Text style={styles.perguntaModal}>
               Quer apagar o {"\n"}
               <Text>
-                {treinadorDoDelete?.id} - {treinadorDoDelete?.nome} {/* Changed state variable */}
+                {treinadorDoDelete?.id} - {treinadorDoDelete?.nome}
               </Text>
               ?
             </Text>
@@ -154,14 +142,14 @@ export default function TreinadorListaScreen({ navigation, route }) {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   tela: {
     height: "100%",
-    backgroundColor: "rgba(200, 162, 121, 0.5)",
+    backgroundColor: "#222222",
   },
   id: {
     textAlign: "center",

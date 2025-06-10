@@ -9,96 +9,90 @@ import {
 } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import FuncionarioService from "../../../services/FuncionariosService"; // Changed service import
+import FuncionarioService from "../../../services/FuncionarioService";
 import Toast from "react-native-toast-message";
 
 export default function FuncionarioListaScreen({ navigation, route }) {
-  const [funcionario, setFuncionario] = useState([]); // Changed state variable
+  const [funcionario, setFuncionario] = useState([]);
   const [modal, setModal] = useState(false);
-  const [funcionarioDoDelete, setFuncionarioDoDelete] = useState(null); // Changed state variable
+  const [funcionarioDoDelete, setFuncionarioDoDelete] = useState(null);
 
   useEffect(() => {
-    buscarFuncionario(); // Changed function call
+    buscarFuncionario();
     const unsubscribe = navigation.addListener("focus", () => {
-      buscarFuncionario(); // Changed function call
+      buscarFuncionario();
     });
     return unsubscribe;
   }, [navigation]);
 
-  async function buscarFuncionario() { // Changed function name
-    const listaFuncionarios = await FuncionarioService.listar(); // Changed service call
-    setFuncionario(listaFuncionarios); // Changed state update
+  async function buscarFuncionario() {
+    const listaFuncionarios = await FuncionarioService.listar();
+    setFuncionario(listaFuncionarios);
   }
 
   function handleDelete(item) {
-    setFuncionarioDoDelete(item); // Changed state update
+    setFuncionarioDoDelete(item);
     setModal(true);
   }
 
   async function confirmarDelete() {
-    if (funcionarioDoDelete) { // Changed state variable
+    if (funcionarioDoDelete) {
       try {
-        await FuncionarioService.remover(funcionarioDoDelete.id); // Changed service call
+        await FuncionarioService.remover(funcionarioDoDelete.id);
         Toast.show({
           type: "success",
           text1: "Sucesso!",
-          text2: `Funcionário ${funcionarioDoDelete.nome} excluído`, // Changed toast message
+          text2: `Funcionário ${funcionarioDoDelete.nome} excluído`,
         });
       } catch (error) {
-        console.warn("Erro ao remover funcionário:", error); // Changed console message
+        console.warn("Erro ao remover funcionário:", error);
         Toast.show({
           type: "error",
           text1: "Erro ao Excluir",
-          text2: "Não foi possível excluir o funcionário.", // Changed toast message
+          text2: "Não foi possível excluir o funcionário.",
         });
       } finally {
-        buscarFuncionario(); // Changed function call
+        buscarFuncionario();
         setModal(false);
-        setFuncionarioDoDelete(null); // Changed state update
+        setFuncionarioDoDelete(null);
       }
     }
   }
 
   function cancelarDelete() {
     setModal(false);
-    setFuncionarioDoDelete(null); // Changed state update
+    setFuncionarioDoDelete(null);
   }
 
   return (
-    <ScrollView style={styles.tela}>
-      <Button
-        style={{ margin: 10 }}
-        icon="plus"
-        mode="contained"
-        onPress={() => navigation.navigate("FuncionarioFormScreen")} // Changed navigation target
-      >
-        Cadastrar
-      </Button>
-
+    <View style={styles.tela}>
       <FlatList
-        data={funcionario} // Changed data source
+        data={funcionario}
         renderItem={({ item }) => (
           <Card style={{ marginVertical: 5, marginHorizontal: 10 }}>
             <Card.Content>
               <Text style={styles.id}>ID: {item["id"]}</Text>
               <Text>Nome: {item["nome"]}</Text>
-              <Text>Telefone: {item["telefone"]}</Text>
-              <Text>CPF: {item["cpf"]}</Text> {/* Changed CNPJ to CPF */}
-              <Text>Email: {item["email"]}</Text>
-              <Text>Estado: {item["estado"]}</Text>
+              <Text>CPF: {item["cpf"]}</Text>
+              <Text>Data Nasc.: {item["dataDeNascimento"]}</Text>
+              {/* Changed from Salário to Estado Civil */}
+              <Text>Estado Civil: {item["estadoCivil"]}</Text>
+              <Text>Estado Nasc.: {item["estadoDeNascimento"]}</Text>
             </Card.Content>
             <Card.Actions>
               <Button
                 icon="pencil"
                 onPress={() =>
-                  navigation.navigate("FuncionarioFormScreen", item) // Changed navigation target
+                  navigation.navigate("FuncionarioFormScreen", item)
                 }
               >
                 {" "}
               </Button>
-              <Button icon="delete" onPress={() => handleDelete(item)}>
-                {" "}
-              </Button>
+              <Button
+                style={{ backgroundColor: "red" }}
+                icon="delete"
+                onPress={() => handleDelete(item)}
+              />
             </Card.Actions>
           </Card>
         )}
@@ -125,7 +119,7 @@ export default function FuncionarioListaScreen({ navigation, route }) {
             <Text style={styles.perguntaModal}>
               Quer apagar o {"\n"}
               <Text>
-                {funcionarioDoDelete?.id} - {funcionarioDoDelete?.nome} {/* Changed state variable */}
+                {funcionarioDoDelete?.id} - {funcionarioDoDelete?.nome}
               </Text>
               ?
             </Text>
@@ -151,14 +145,14 @@ export default function FuncionarioListaScreen({ navigation, route }) {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   tela: {
     height: "100%",
-    backgroundColor: "rgba(200, 162, 121, 0.5)",
+    backgroundColor: "#222222",
   },
   id: {
     textAlign: "center",
