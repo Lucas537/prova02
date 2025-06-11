@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   FlatList,
@@ -75,8 +76,9 @@ export default function FuncionarioListaScreen({ navigation, route }) {
               <Text>Nome: {item["nome"]}</Text>
               <Text>CPF: {item["cpf"]}</Text>
               <Text>Data Nasc.: {item["dataDeNascimento"]}</Text>
-              {/* Changed from Salário to Estado Civil */}
-              <Text>Estado Civil: {item["estadoCivil"]}</Text>
+              <Text style={{ textTransform: "capitalize" }}>
+                Estado Civil: {item["estadoCivil"]}
+              </Text>
               <Text>Estado Nasc.: {item["estadoDeNascimento"]}</Text>
             </Card.Content>
             <Card.Actions>
@@ -107,43 +109,49 @@ export default function FuncionarioListaScreen({ navigation, route }) {
         visible={modal}
         onRequestClose={cancelarDelete}
       >
-        <View style={styles.centralizar}>
-          <View style={styles.modal}>
-            <TouchableOpacity
-              onPress={cancelarDelete}
-              style={styles.botaoFechar}
-            >
-              <Ionicons name="close-circle" size={24} color="gray" />
-            </TouchableOpacity>
-
-            <Text style={styles.perguntaModal}>
-              Quer apagar o {"\n"}
-              <Text>
-                {funcionarioDoDelete?.id} - {funcionarioDoDelete?.nome}
-              </Text>
-              ?
-            </Text>
-
-            <View style={styles.containerBotoesModal}>
-              <Button
-                mode="contained"
-                onPress={confirmarDelete}
-                buttonColor="red"
-                style={styles.botaoModal}
-              >
-                Sim
-              </Button>
-              <Button
-                mode="outlined"
+        <TouchableOpacity
+          style={styles.overlay}
+          activeOpacity={1}
+          onPress={cancelarDelete}
+        >
+          <View style={styles.centralizar}>
+            <TouchableOpacity activeOpacity={1} style={styles.modal}>
+              <TouchableOpacity
                 onPress={cancelarDelete}
-                textColor="blue"
-                style={styles.botaoModal}
+                style={styles.botaoFechar}
               >
-                Não
-              </Button>
-            </View>
+                <Ionicons name="close-circle" size={24} color="gray" />
+              </TouchableOpacity>
+
+              <Text style={styles.perguntaModal}>
+                Quer apagar o {"\n"}
+                <Text>
+                  {funcionarioDoDelete?.id} - {funcionarioDoDelete?.nome}
+                </Text>
+                ?
+              </Text>
+
+              <View style={styles.containerBotoesModal}>
+                <Button
+                  mode="contained"
+                  onPress={confirmarDelete}
+                  buttonColor="red"
+                  style={styles.botaoModal}
+                >
+                  Sim
+                </Button>
+                <Button
+                  mode="outlined"
+                  onPress={cancelarDelete}
+                  textColor="blue"
+                  style={styles.botaoModal}
+                >
+                  Não
+                </Button>
+              </View>
+            </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
@@ -204,5 +212,11 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     zIndex: 1,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

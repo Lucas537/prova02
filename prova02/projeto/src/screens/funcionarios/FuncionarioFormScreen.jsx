@@ -64,7 +64,6 @@ export default function FuncionarioFormScreen({ navigation, route }) {
 
   const validarCampo = async (campo, value) => {
     try {
-      // Removed specific salary validation logic
       await validationSchema.validateAt(campo, { [campo]: value });
       setErrors((prev) => ({ ...prev, [campo]: "" }));
     } catch (error) {

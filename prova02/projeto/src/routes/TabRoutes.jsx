@@ -5,6 +5,7 @@ import { StatusBar } from "react-native";
 import ClienteStack from "../stacks/ClienteStack";
 import FuncionarioStack from "../stacks/FuncionarioStack";
 import TreinadorStack from "../stacks/TreinadorStack";
+import DashboardScreen from "../screens/dashboard/DashboardScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -52,6 +53,16 @@ export default function TabRoutes() {
               <Ionicons name="barbell" color={color} size={size} />
             ),
             title: "Treinadores",
+          }}
+        />
+        <Tab.Screen
+          name="DashboardScreen"
+          component={DashboardScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="podium" color={color} size={size} />
+            ),
+            title: "Dashboard",
           }}
         />
       </Tab.Navigator>
